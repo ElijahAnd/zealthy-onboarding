@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "zealthy-python"
+version = "0.1.0"
+description = ""
+authors = ["ElijahAnd <elijahan.q@gmail.com>"]
+readme = "README.md"
+packages = [{include = "zealthy_python"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+supabase = "^2.10.0"
+fastapi = "^0.115.6"
+uvicorn = "^0.34.0"
+
+[virtualenvs]
+in-project = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
