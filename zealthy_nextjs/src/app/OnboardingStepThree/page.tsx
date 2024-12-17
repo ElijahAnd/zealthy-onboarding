@@ -23,7 +23,7 @@ export default function Home() {
       about: aboutData
     };
   
-    const response = await axios.post('/api/userData', formData);
+    const response = await axios.post('http://18.204.138.224:8000/api/userData', formData);
   
     if (response.status === 200) {
       localStorage.removeItem('addressData');
