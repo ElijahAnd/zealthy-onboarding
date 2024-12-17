@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import { ComponentContext } from '../utils/ComponentContext';
@@ -22,15 +23,9 @@ export default function Home() {
       about: aboutData
     };
   
-    const response = await fetch('/api/userData', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    });
+    const response = await axios.post('/api/userData', formData);
   
-    if (response.ok) {
+    if (response.status === 200) {
       localStorage.removeItem('addressData');
       localStorage.removeItem('birthdateData');
       localStorage.removeItem('aboutData');
