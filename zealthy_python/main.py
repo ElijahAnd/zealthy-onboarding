@@ -2,16 +2,14 @@ from fastapi import FastAPI, status, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client, Client
 import os
-from dotenv import load_dotenv
 import logging
 from starlette.middleware.base import BaseHTTPMiddleware
 
 app = FastAPI(docs_url="/", redoc_url="/api/redoc")
 
-load_dotenv()
-url: str = os.getenv("DATABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-dbpass: str = os.getenv("SUPABASE_DBPASS")
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+dbpass: str = os.environ.get("SUPABASE_DBPASS")
 supabase: Client = create_client(url, key)
 
 app.add_middleware(
