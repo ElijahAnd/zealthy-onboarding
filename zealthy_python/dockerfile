@@ -1,0 +1,25 @@
+# Use Python 3.11 slim image for a smaller, more efficient container
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+RUN pip install poetry
+
+# Copy only the necessary files (pyproject.toml and poetry.lock) first for caching layers
+COPY pyproject.toml poetry.lock /app/
+
+# Install dependencies in a production environment (no dev dependencies)
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev --no-root
+
+# Copy the rest of the application files
+COPY . .
+COPY .env .env
+
+# Expose the application port (usually 8000 for FastAPI)
+EXPOSE 8000
+
+# Use gunicorn to run the app for production (instead of uvicorn directly)
+CMD ["poetry", "run", "gunicorn", "main:app", "--workers", "4", "--bind", "0.0.0.0:8000"]
