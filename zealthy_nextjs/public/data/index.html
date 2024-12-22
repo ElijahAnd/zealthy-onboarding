@@ -1,100 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Data</title>
-  <style>
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #f3f4f6;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Data Table</title>
+    <style>
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        #error {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div style="max-width: 900px; margin: auto;">
-    <h1>User Data</h1>
-    <p id="loading">Loading...</p>
-    <p id="error" style="color: red;"></p>
-    <table id="userTable" style="display: none;">
-      <thead>
-        <tr>
-          <th>Address</th>
-          <th>Date of Birth</th>
-          <th>About</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- User data rows will be dynamically inserted here -->
-      </tbody>
+    <h1 style="text-align:center;">User Data Table</h1>
+    <div id="error"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Address</th>
+                <th>Date of Birth</th>
+                <th>About</th>
+            </tr>
+        </thead>
+        <tbody id="userData">
+            <!-- Data will be inserted here dynamically -->
+        </tbody>
     </table>
-  </div>
 
-  <script>
-    // Open a WebSocket connection
-    const socket = new WebSocket('ws://3a47-2600-1f18-6672-f200-fda1-558d-29f8-b46d.ngrok-free.app:8000/ws/userData'); // Adjust the URL if needed
+    <script>
+        // Define the API URL
+        const apiUrl = 'https://452c-2600-1f18-6672-f200-fda1-558d-29f8-b46d.ngrok-free.app/api/userData';
 
-    // Elements
-    const loadingElement = document.getElementById('loading');
-    const errorElement = document.getElementById('error');
-    const userTable = document.getElementById('userTable');
-    const tbody = userTable.querySelector('tbody');
+        // Fetch the user data from the backend
+        async function fetchUserData() {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-    // Listen for messages from WebSocket
-    socket.onmessage = (event) => {
-      try {
-        // Parse the incoming JSON data
-        const users = JSON.parse(event.data);
-        
-        // Clear any previous content
-        tbody.innerHTML = '';
-        
-        // Populate the table with new user data
-        users.forEach((user) => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${user.address}</td>
-            <td>${user.birthdate}</td>
-            <td>${user.about}</td>
-          `;
-          tbody.appendChild(row);
-        });
+                // Check if the response is OK
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
 
-        // Hide the loading text and display the table
-        loadingElement.style.display = 'none';
-        userTable.style.display = 'table';
-      } catch (error) {
-        errorElement.textContent = 'Error parsing user data';
-        console.error(error);
-      }
-    };
+                // Parse JSON response
+                const data = await response.json();
 
-    // WebSocket error handling
-    socket.onerror = (error) => {
-      errorElement.textContent = 'WebSocket error occurred';
-      console.error('WebSocket error:', error);
-    };
+                // Populate the table
+                populateTable(data);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                displayError('Failed to fetch user data. Please try again later.');
+            }
+        }
 
-    // WebSocket connection opened
-    socket.onopen = () => {
-      console.log('Connected to WebSocket');
-    };
+        // Populate the table with user data
+        function populateTable(data) {
+            const tbody = document.getElementById('userData');
 
-    // WebSocket connection closed
-    socket.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-  </script>
+
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.address || 'N/A'}</td>
+                        <td>${user.birthdate || 'N/A'}</td>
+                        <td>${user.about || 'N/A'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                displayError('No user data available.');
+            }
+        }
+
+        // Display an error message
+        function displayError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+        }
+
+        // Fetch the data on page load
+        fetchUserData();
+    </script>
 </body>
 </html>
