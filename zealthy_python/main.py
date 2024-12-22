@@ -26,7 +26,7 @@ print(f"Ngrok tunnel established! Your URL is: {listener.url()}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://3.213.192.77:3000"],  # Allow your frontend origin
+    allow_origins=["http://127.0.0.1:3000", "http://3.213.192.77:3000"],  # Allow your frontend origin
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],  # Include all methods you need
     allow_headers=["*"],
@@ -37,7 +37,7 @@ logger = logging.getLogger("uvicorn")
 
 class LogMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        logger.info(f"Request method: {request.method}, path: {request.url}")
+        logger.info(f"Request headers: {request.headers}")
         response = await call_next(request)
         return response
 
@@ -46,7 +46,13 @@ app.add_middleware(LogMiddleware)
 
 @app.options("/{path:path}")
 async def handle_options(request: Request, path: str):
-    return {"message": "OPTIONS request handled"}
+    headers = {
+        "Access-Control-Allow-Origin": request.headers.get("Origin", "*"),
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Credentials": "true"
+    }
+    return {"message": "OPTIONS request handled"}, 200, headers
 
 
 @app.post("/api/userData", status_code=status.HTTP_200_OK)
