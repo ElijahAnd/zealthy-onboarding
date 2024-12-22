@@ -28,9 +28,17 @@
         tr:hover {
             background-color: #f9fafb;
         }
+        
+        #error {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
+    <h1 style="text-align:center;">User Data Table</h1>
+    <div id="error"></div>
     <table>
         <thead>
             <tr>
@@ -45,29 +53,63 @@
     </table>
 
     <script>
-        fetch('https://2dd1-2600-1f18-6672-f200-fda1-558d-29f8-b46d.ngrok-free.app/api/userData', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Origin': 'http://3.213.192.77:3000'
+        // Define the API URL
+        const apiUrl = 'https://2dd1-2600-1f18-6672-f200-fda1-558d-29f8-b46d.ngrok-free.app/api/userData';
+
+        // Fetch the user data from the backend
+        async function fetchUserData() {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Check if the response is OK
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                // Parse JSON response
+                const data = await response.json();
+
+                // Populate the table
+                populateTable(data);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                displayError('Failed to fetch user data. Please try again later.');
             }
-        })
-        .then(response => {
-            console.log('Raw response:', response);
-            return response.json();
-        })
-        .then(data => {
+        }
+
+        // Populate the table with user data
+        function populateTable(data) {
             const tbody = document.getElementById('userData');
-            data.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.address}</td>
-                    <td>${user.birthdate}</td>
-                    <td>${user.about}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        });
+
+
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.address || 'N/A'}</td>
+                        <td>${user.birthdate || 'N/A'}</td>
+                        <td>${user.about || 'N/A'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                displayError('No user data available.');
+            }
+        }
+
+        // Display an error message
+        function displayError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+        }
+
+        // Fetch the data on page load
+        fetchUserData();
     </script>
 </body>
 </html>
