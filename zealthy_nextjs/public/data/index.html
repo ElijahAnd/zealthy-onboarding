@@ -62,30 +62,32 @@
                 const response = await fetch(apiUrl, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
                     }
                 });
 
-                // Check if the response is OK
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                // Get the raw response text first
+                const responseText = await response.text();
+                console.log('Raw Response:', responseText);
+
+                // Try parsing as JSON if needed
+                try {
+                    const data = JSON.parse(responseText);
+                    populateTable(data);
+                } catch (parseError) {
+                    displayError(`Raw Response: ${responseText}`);
                 }
-
-                // Parse JSON response
-                const data = await response.json();
-
-                // Populate the table
-                populateTable(data);
             } catch (error) {
                 console.error('Error fetching user data:', error);
                 displayError('Failed to fetch user data. Please try again later.');
             }
         }
 
+
         // Populate the table with user data
         function populateTable(data) {
             const tbody = document.getElementById('userData');
-
 
             if (Array.isArray(data) && data.length > 0) {
                 data.forEach(user => {
