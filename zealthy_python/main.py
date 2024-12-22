@@ -6,6 +6,8 @@ import logging
 from starlette.middleware.base import BaseHTTPMiddleware
 import ngrok
 import asyncio
+import sys
+import logging
 
 app = FastAPI(docs_url="/", redoc_url="/api/redoc")
 
@@ -22,7 +24,13 @@ listener = ngrok.forward(8000, authtoken=token, headers={
     "Access-Control-Allow-Headers": "*",
     "Access-Control-Allow-Credentials": "true"
 })
-logging.info(f"Ngrok tunnel established! Your URL is: {listener.url()}")
+# Multiple ways to ensure we see the URL
+print(f"\n{'='*50}")
+print(f"NGROK URL: {listener.url()}")
+print(f"{'='*50}\n")
+
+logging.info(f"Ngrok URL: {listener.url()}")
+sys.stdout.flush()  # Force flush the output
 
 app.add_middleware(
     CORSMiddleware,
