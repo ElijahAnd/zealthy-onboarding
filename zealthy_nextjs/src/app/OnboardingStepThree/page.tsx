@@ -23,7 +23,7 @@ export default function Home() {
       about: aboutData
     };
   
-    const response = await axios.post('/api/userData', formData);
+    const response = await axios.post('https://2dd1-2600-1f18-6672-f200-fda1-558d-29f8-b46d.ngrok-free.app/api/userData', formData);
   
     if (response.status === 200) {
       localStorage.removeItem('addressData');
