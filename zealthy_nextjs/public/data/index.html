@@ -52,7 +52,10 @@
                 'Origin': 'http://3.213.192.77:3000'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Raw response:', response);
+            return response.json();
+        })
         .then(data => {
             const tbody = document.getElementById('userData');
             data.forEach(user => {
