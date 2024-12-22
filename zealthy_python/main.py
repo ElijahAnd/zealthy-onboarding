@@ -22,7 +22,7 @@ listener = ngrok.forward(8000, authtoken=token, headers={
     "Access-Control-Allow-Headers": "*",
     "Access-Control-Allow-Credentials": "true"
 })
-print(f"Ngrok tunnel established! Your URL is: {listener.url()}")
+logging.info(f"Ngrok tunnel established! Your URL is: {listener.url()}")
 
 app.add_middleware(
     CORSMiddleware,
